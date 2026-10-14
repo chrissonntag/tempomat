@@ -1,8 +1,10 @@
 import axios from 'axios'
 import authenticator from '../config/authenticator'
 
+export const tempoBaseUrl = 'https://api.tempo.io/4'
+
 const tempoAxios = axios.create({
-    baseURL: 'https://api.tempo.io/4'
+    baseURL: tempoBaseUrl
 })
 
 tempoAxios.interceptors.request.use(async function (axiosConfig) {

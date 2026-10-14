@@ -1,6 +1,6 @@
 import authenticator from '../config/authenticator'
-import { AxiosError, AxiosResponse } from 'axios'
-import tempoAxios from './tempoAxios'
+import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
+import tempoAxios, { tempoBaseUrl } from './tempoAxios'
 import flags from '../globalFlags'
 import { appName } from '../appName'
 import atlassianAxios from './atlassianAxios'
@@ -117,16 +117,18 @@ export default {
     },
 
     async getIssueId(issueKey: string): Promise<string> {
+        const path = `/issue/${encodeURIComponent(validIssueKey(issueKey))}`
         return execute(async () => {
-            const response = await atlassianAxios.get(`/issue/${issueKey}`)
+            const response = await atlassianAxios.get(path)
             debugLog(response)
             return response.data.id
         })
     },
 
     async getIssueKey(issueId: string): Promise<string> {
+        const path = `/issue/${encodeURIComponent(validIssueId(issueId))}`
         return execute(async () => {
-            const response = await atlassianAxios.get(`/issue/${issueId}`)
+            const response = await atlassianAxios.get(path)
             debugLog(response)
             return response.data.key
         })
@@ -136,7 +138,7 @@ export default {
 async function fetchPaginatedResults<T>(acc: T[], response: AxiosResponse): Promise<T[]> {
     const nextPageUrl = response.data.metadata.next
     if (nextPageUrl) {
-        const response = await tempoAxios.get(nextPageUrl)
+        const response = await tempoAxios.get(validTempoUrl(nextPageUrl))
         debugLog(response)
         const nextPageResults = await fetchPaginatedResults<T>(response.data.results, response)
         return acc.concat(nextPageResults)
@@ -145,9 +147,31 @@ async function fetchPaginatedResults<T>(acc: T[], response: AxiosResponse): Prom
     }
 }
 
+function validIssueKey(issueKey: string): string {
+    if (!/^[A-Z][A-Z0-9_]*-\d+$/.test(issueKey)) throw Error(`Invalid issue key: ${issueKey}`)
+    return issueKey
+}
+
+function validIssueId(issueId: string): string {
+    if (!/^\d+$/.test(String(issueId))) throw Error(`Invalid issue id: ${issueId}`)
+    return String(issueId)
+}
+
+function validTempoUrl(url: string): string {
+    const parsed = new URL(url, tempoBaseUrl)
+    if (parsed.origin !== new URL(tempoBaseUrl).origin) throw Error(`Refusing to follow pagination link to ${parsed.origin}`)
+    return parsed.href
+}
+
+function describeRequest(config?: InternalAxiosRequestConfig): string {
+    const url = config?.url ?? ''
+    const fullUrl = /^https?:\/\//.test(url) ? url : `${config?.baseURL ?? ''}${url}`
+    return `${config?.method?.toUpperCase()} ${fullUrl}`
+}
+
 function debugLog(response: AxiosResponse) {
     if (flags.debug) {
-        console.log(`Request: ${JSON.stringify(response.config)}, Response: ${JSON.stringify(response.data)}`)
+        console.log(`Request: ${describeRequest(response.config)}, Response: ${JSON.stringify(response.data)}`)
     }
 }
 
@@ -156,6 +180,7 @@ async function execute<T>(action: () => Promise<T>): Promise<T> {
 }
 
 function handleError(e: AxiosError): never {
+    if (!axios.isAxiosError(e)) throw e
     if (flags.debug) console.log(`Response: ${JSON.stringify(e.response?.data)}`)
     const responseStatus = e.response?.status
     if (responseStatus === 401) {
@@ -178,11 +203,7 @@ function handleError(e: AxiosError): never {
     }
 
     if (flags.debug) {
-        if (e.response) {
-            console.log(e.toJSON())
-        } else {
-            console.log(e)
-        }
+        console.log(`Request: ${describeRequest(e.config)}, Error: ${e.code ?? ''} ${e.message}`)
     }
     let errorMessage = 'Error connecting to server.'
     if (responseStatus) errorMessage += ` Server status code: ${responseStatus}.`
