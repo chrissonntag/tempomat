@@ -1,7 +1,7 @@
 import { Command, Flags, Args } from '@oclif/core'
 import { appName } from '../../appName'
 import tempo from '../../tempo'
-import globalFlags from '../../globalFlags'
+import { debugFlag, applyGlobalFlags } from '../../commonFlags'
 import time from '../../time'
 
 export default class Start extends Command {
@@ -18,7 +18,7 @@ export default class Start extends Command {
 
     static flags = {
         help: Flags.help({ char: 'h' }),
-        debug: Flags.boolean(),
+        debug: debugFlag,
         description: Flags.string({ char: 'd', description: 'description for worklog once tracker is stopped' }),
         'stop-previous': Flags.boolean({ description: 'stops and logs previous tracker with the same issue key if it exists' })
     }
@@ -32,7 +32,7 @@ export default class Start extends Command {
 
     async run() {
         const { args, flags } = await this.parse(Start)
-        globalFlags.debug = flags.debug
+        applyGlobalFlags(flags)
         await tempo.startTracker({
             issueKeyOrAlias: args.issue_key_or_alias,
             description: flags.description,

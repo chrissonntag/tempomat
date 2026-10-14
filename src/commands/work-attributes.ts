@@ -1,7 +1,7 @@
 import { Command, Flags } from '@oclif/core'
 import { appName } from '../appName'
 import tempo from '../tempo'
-import globalFlags from '../globalFlags'
+import { debugFlag, jsonFlag, applyGlobalFlags } from '../commonFlags'
 
 export default class WorkAttributes extends Command {
     static description = '[or wa], print the work attributes of the Tempo instance and their allowed values'
@@ -15,12 +15,13 @@ export default class WorkAttributes extends Command {
 
     static flags = {
         help: Flags.help({ char: 'h' }),
-        debug: Flags.boolean()
+        debug: debugFlag,
+        json: jsonFlag
     }
 
     async run() {
         const { flags } = await this.parse(WorkAttributes)
-        globalFlags.debug = flags.debug
+        applyGlobalFlags(flags)
         await tempo.listWorkAttributes()
     }
 }

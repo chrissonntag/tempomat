@@ -2,11 +2,11 @@ import cliTruncate from 'cli-truncate'
 import Table, { HorizontalTable, Cell } from 'cli-table3'
 import { format } from 'date-fns'
 import chalk from 'chalk'
-import { UserWorklogs, Worklog } from './worklogs'
+import { UserWorklogs, Worklog, findOverlapsIn } from './worklogs'
 import issueKeyExtended, { AliasesPosition } from '../issueKeyExtended'
 
 // How many columns should be removed, when verbose mode is off
-const COLUMNS_TO_REMOVE = 2
+const COLUMNS_TO_REMOVE = 3
 
 export async function render(userWorklogs: UserWorklogs, verbose: boolean = false) {
     const { worklogHeaders, columnsNumber } = generateWorklogHeaders(verbose)
@@ -29,6 +29,7 @@ function generateWorklogHeaders(verbose: boolean) {
         { content: chalk.bold.greenBright('from-to'), hAlign: 'right' },
         { content: chalk.bold.greenBright('issue'), hAlign: 'right' },
         { content: chalk.bold.greenBright('duration'), hAlign: 'right' },
+        chalk.bold.greenBright('type'),
         chalk.bold.greenBright('description'),
         chalk.bold.greenBright('issue url')
     ]
@@ -53,52 +54,55 @@ function generateInfoHeaders(userWorklogs: UserWorklogs, verbose: boolean, colSp
 }
 
 async function generateContent(worklogs: Worklog[], verbose: boolean, colSpan: number) {
-    let content = await generateWorklogsContent(worklogs)
-    if (!verbose) {
-        content.map(r => r.splice(r.length - COLUMNS_TO_REMOVE, COLUMNS_TO_REMOVE))
+    if (worklogs.length === 0) {
+        return [[{ colSpan: colSpan, content: chalk.redBright('No worklogs'), hAlign: 'center' }]].map((r) => r as Cell[])
     }
-    if (content.length === 0) {
-        content = [
-            [{ colSpan: colSpan, content: chalk.redBright('No worklogs'), hAlign: 'center' }]
-        ]
+    const sorted = [...worklogs].sort((a, b) => (a.interval?.startTime ?? '').localeCompare(b.interval?.startTime ?? ''))
+    const rows: Cell[][] = []
+    for (const [index, worklog] of sorted.entries()) {
+        const previous = sorted[index - 1]
+        const gap = previous ? gapBetween(previous, worklog) : undefined
+        if (gap) {
+            rows.push([{ colSpan: colSpan, hAlign: 'center', content: chalk.gray(`not logged ${gap.from}-${gap.to} (${gap.duration})`) } as Cell])
+        }
+        const row = await generateWorklogRow(worklog, findOverlapsIn(worklog, sorted).length > 0)
+        if (!verbose) row.splice(row.length - COLUMNS_TO_REMOVE, COLUMNS_TO_REMOVE)
+        rows.push(row)
     }
-    return content.map((r) => r as Cell[])
+    return rows
 }
 
-async function generateWorklogsContent(worklogs: Worklog[]) {
-    const intervalRows = markBreaksBetweenIntervals(worklogs)
-    return Promise.all(
-        worklogs.map(async (worklog, index) => {
-            const issueKey = await issueKeyExtended(worklog.issueKey, AliasesPosition.Left)
-            const tableContent = {
-                id: { colSpan: 1, content: chalk.yellow(worklog.id), hAlign: 'right' },
-                interval: { colSpan: 1, content: intervalRows[index], hAlign: 'right' },
-                issueKey: { colSpan: 1, content: issueKey, hAlign: 'right' },
-                duration: { colSpan: 1, content: worklog.duration, hAlign: 'right' },
-                description: cliTruncate(worklog.description, 30),
-                taskUrl: worklog.link
-            }
-            return Object.values(tableContent)
-        })
-    )
+async function generateWorklogRow(worklog: Worklog, overlaps: boolean): Promise<Cell[]> {
+    const issueKey = await issueKeyExtended(worklog.issueKey, AliasesPosition.Left)
+    const interval = `${worklog.interval?.startTime}-${worklog.interval?.endTime}`
+    return [
+        { colSpan: 1, content: chalk.yellow(worklog.id), hAlign: 'right' },
+        { colSpan: 1, content: overlaps ? chalk.bold.redBright(`${interval} overlap`) : interval, hAlign: 'right' },
+        { colSpan: 1, content: issueKey, hAlign: 'right' },
+        { colSpan: 1, content: worklog.duration, hAlign: 'right' },
+        worklog.workType ?? '',
+        cliTruncate(oneLine(worklog.description), 30),
+        worklog.link
+    ].map((r) => r as Cell)
 }
 
-function markBreaksBetweenIntervals(worklogs: Worklog[]): string[] {
-    const intervals = worklogs.map(w => w.interval)
-    return intervals.map((interval, index) => {
-        const next = intervals[index + 1]
-        const previous = intervals[index - 1]
+export function gapBetween(previous: Worklog, next: Worklog): { from: string, to: string, duration: string } | undefined {
+    const previousEnd = previous.interval?.endTime
+    const nextStart = next.interval?.startTime
+    if (!previousEnd || !nextStart || nextStart <= previousEnd) return undefined
+    const minutes = toMinutes(nextStart) - toMinutes(previousEnd)
+    return { from: previousEnd, to: nextStart, duration: minutesToDuration(minutes) }
+}
 
-        let isStartTimeWithoutBreak = true
-        if (previous && interval?.startTime !== previous?.endTime) isStartTimeWithoutBreak = false
+function toMinutes(time: string): number {
+    const [hours, minutes] = time.split(':').map(Number)
+    return hours * 60 + minutes
+}
 
-        let isEndTimeWithoutBreak = true
-        if (next && interval?.endTime !== next?.startTime) isEndTimeWithoutBreak = false
-
-        const startTime = isStartTimeWithoutBreak ? interval?.startTime : chalk.bold.redBright(interval?.startTime)
-        const endTime = isEndTimeWithoutBreak ? interval?.endTime : chalk.bold.redBright(interval?.endTime)
-        return `${startTime}-${endTime}`
-    })
+function minutesToDuration(minutes: number): string {
+    const hours = Math.floor(minutes / 60)
+    const rest = minutes % 60
+    return `${hours ? `${hours}h` : ''}${rest ? `${rest}m` : ''}` || '0h'
 }
 
 function generateDurationSummaryFooter(userWorklogs: UserWorklogs) {
@@ -109,4 +113,8 @@ function generateDurationSummaryFooter(userWorklogs: UserWorklogs) {
         { colSpan: 3, content: requiredInfo, hAlign: 'right' },
         { colSpan: 1, content: loggedDuration, hAlign: 'right' }
     ].map((r) => r as Cell)
+}
+
+export function oneLine(text: string | undefined): string {
+    return (text ?? '').replace(/\s+/g, ' ').trim()
 }

@@ -61,6 +61,30 @@ export type WorklogEntity = {
     issue: IssueEntity;
     description: string;
     timeSpentSeconds: number;
+    billableSeconds?: number;
+    attributes?: { values?: WorkAttributeValue[] };
+}
+
+export type UpdateWorklogRequest = {
+    timeSpentSeconds: number;
+    startDate: string;
+    startTime: string;
+    description?: string;
+    billableSeconds?: number;
+    remainingEstimateSeconds?: number;
+    attributes?: WorkAttributeValue[];
+}
+
+export type AtlassianUser = {
+    accountId: string;
+    displayName: string;
+    emailAddress?: string;
+}
+
+export type IssueSummary = {
+    id: string;
+    key: string;
+    summary: string;
 }
 
 export type AuthorEntity = {
@@ -96,6 +120,16 @@ export default {
         return execute(async () => {
             const response = await tempoAxios.delete(`/worklogs/${worklogId}`)
             debugLog(response)
+        })
+    },
+
+    async updateWorklog(worklogId: number, request: UpdateWorklogRequest): Promise<WorklogEntity> {
+        const credentials = await authenticator.getCredentials()
+        const body = { ...request, authorAccountId: credentials.accountId }
+        return execute(async () => {
+            const response = await tempoAxios.put(`/worklogs/${worklogId}`, body)
+            debugLog(response)
+            return response.data
         })
     },
 
@@ -145,6 +179,48 @@ export default {
             const response = await atlassianAxios.get(path)
             debugLog(response)
             return response.data.id
+        })
+    },
+
+    async getIssueSummaries(issueIds: string[]): Promise<IssueSummary[]> {
+        if (issueIds.length === 0) return []
+        const ids = issueIds.map(validIssueId)
+        return execute(async () => {
+            const response = await atlassianAxios.post('/search/jql', {
+                jql: `id in (${ids.join(',')})`,
+                fields: ['summary'],
+                maxResults: ids.length
+            })
+            debugLog(response)
+            return response.data.issues.map((issue: { id: string, key: string, fields: { summary: string } }) => ({
+                id: String(issue.id),
+                key: issue.key,
+                summary: issue.fields.summary.trim()
+            }))
+        })
+    },
+
+    async verifyAtlassianCredentials(hostname: string, email: string, token: string): Promise<AtlassianUser> {
+        const authString = Buffer.from(`${email}:${token}`).toString('base64')
+        return execute(async () => {
+            const response = await axios.get(`https://${hostname}/rest/api/3/myself`, {
+                headers: { Authorization: `Basic ${authString}`, Accept: 'application/json' },
+                maxRedirects: 0
+            })
+            debugLog(response)
+            return response.data
+        })
+    },
+
+    async verifyTempoToken(token: string): Promise<WorkAttributeEntity[]> {
+        return execute(async () => {
+            const response = await axios.get(`${tempoBaseUrl}/work-attributes`, {
+                headers: { Authorization: `Bearer ${token}` },
+                params: { limit: 1000 },
+                maxRedirects: 0
+            })
+            debugLog(response)
+            return response.data.results
         })
     },
 

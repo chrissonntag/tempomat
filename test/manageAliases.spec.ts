@@ -23,6 +23,7 @@ test('add and remove alias', async () => {
             atlassianUserEmail: 'fakeUserEmail',
             atlassianToken: 'fakeToken',
             hostname: 'fakeHostname',
+            tokenStorage: 'file',
             aliases: new Map<string, string>([
                 ['lunch', 'ABC-123'],
                 ['foo', 'ABC-321']
@@ -40,6 +41,7 @@ test('add and remove alias', async () => {
             atlassianUserEmail: 'fakeUserEmail',
             atlassianToken: 'fakeToken',
             hostname: 'fakeHostname',
+            tokenStorage: 'file',
             aliases: new Map<string, string>([
                 ['lunch', 'ABC-123']
             ]),

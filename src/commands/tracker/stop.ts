@@ -1,7 +1,7 @@
 import { Command, Flags, Args } from '@oclif/core'
 import { appName } from '../../appName'
 import tempo from '../../tempo'
-import globalFlags from '../../globalFlags'
+import { workTypeFlag, debugFlag, applyGlobalFlags } from '../../commonFlags'
 import time from '../../time'
 
 export default class Stop extends Command {
@@ -17,10 +17,10 @@ export default class Stop extends Command {
 
     static flags = {
         help: Flags.help({ char: 'h' }),
-        debug: Flags.boolean(),
+        debug: debugFlag,
         description: Flags.string({ char: 'd', description: 'description for worklog' }),
         'remaining-estimate': Flags.string({ char: 'r', description: 'remaining estimate' }),
-        'work-type': Flags.string({ char: 'w', description: `work type name, e.g. Entwicklung (see ${appName} work-attributes)` })
+        'work-type': workTypeFlag
     }
 
     static args = {
@@ -32,7 +32,7 @@ export default class Stop extends Command {
 
     async run() {
         const { args, flags } = await this.parse(Stop)
-        globalFlags.debug = flags.debug
+        applyGlobalFlags(flags)
         await tempo.stopTracker({
             issueKeyOrAlias: args.issue_key_or_alias,
             description: flags.description,

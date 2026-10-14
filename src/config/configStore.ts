@@ -1,11 +1,23 @@
 import fs from 'fs'
 import os from 'os'
-import { promisify } from 'util'
 import path from 'path'
 import { Tracker } from './trackerStore'
+import { WorkAttributeValue } from '../api/api'
 
-const readFileAsync = promisify(fs.readFile)
-const writeFileAsync = promisify(fs.writeFile)
+export type LastAction =
+    | { type: 'log', worklogIds: string[] }
+    | { type: 'delete', worklog: WorklogSnapshot }
+    | { type: 'edit', worklogId: string, previous: WorklogSnapshot }
+    | { type: 'move', worklogId: string, previous: WorklogSnapshot }
+
+export type WorklogSnapshot = {
+    issueId: string
+    timeSpentSeconds: number
+    startDate: string
+    startTime: string
+    description?: string
+    attributes?: WorkAttributeValue[]
+}
 
 export type Config = {
     tempoToken?: string
@@ -13,37 +25,49 @@ export type Config = {
     atlassianUserEmail?: string
     atlassianToken?: string
     hostname?: string
+    tokenStorage?: 'file' | 'keychain'
+    secretBlobs?: { tempoToken?: string, atlassianToken?: string }
+    defaultWorkType?: string
     aliases?: Map<string, string>
+    aliasWorkTypes?: Map<string, string>
     trackers?: Map<string, Tracker>
+    skillInstallations?: string[]
+    lastAction?: LastAction
+    updateCheck?: { checkedAt: number, latestVersion?: string }
 }
 
 export function configFilePath(): string {
-    return path.join(os.homedir(), '.tempomat')
+    return process.env.TEMPOMAT_CONFIG || path.join(os.homedir(), '.tempomat')
 }
 
 export default {
 
     async save(config: Config) {
         const configPath = configFilePath()
-        const configJson = JSON.stringify(config, replacer)
-        await writeFileAsync(configPath, configJson, { mode: 0o600 })
+        const tempPath = `${configPath}.${process.pid}.tmp`
+        try {
+            await fs.promises.writeFile(tempPath, JSON.stringify(config, replacer), { mode: 0o600 })
+            await fs.promises.chmod(tempPath, 0o600)
+            await fs.promises.rename(tempPath, configPath)
+        } catch (e) {
+            await fs.promises.rm(tempPath, { force: true })
+            throw e
+        }
     },
 
     async read(): Promise<Config> {
+        const configPath = configFilePath()
+        let configJson: string
         try {
-            const configPath = configFilePath()
-            const configJson = await readFileAsync(configPath, { encoding: 'utf8' })
+            configJson = await fs.promises.readFile(configPath, { encoding: 'utf8' })
+        } catch (e) {
+            if ((e as { code?: string }).code === 'ENOENT') return {}
+            throw Error(`Cannot read ${configPath}: ${(e as Error).message}`)
+        }
+        try {
             return JSON.parse(configJson, reviver)
         } catch {
-            return {
-                tempoToken: undefined,
-                accountId: undefined,
-                atlassianUserEmail: undefined,
-                atlassianToken: undefined,
-                hostname: undefined,
-                aliases: undefined,
-                trackers: undefined
-            }
+            throw Error(`${configPath} is corrupted and was left untouched. Repair or remove it, then run tempo setup.`)
         }
     }
 }

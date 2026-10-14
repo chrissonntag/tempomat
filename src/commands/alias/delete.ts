@@ -1,7 +1,7 @@
 import { Args, Command, Flags } from '@oclif/core'
 import { appName } from '../../appName'
 import tempo from '../../tempo'
-import globalFlags from '../../globalFlags'
+import { debugFlag, applyGlobalFlags } from '../../commonFlags'
 
 export default class Delete extends Command {
     static description = 'delete issue key alias'
@@ -12,7 +12,7 @@ export default class Delete extends Command {
 
     static flags = {
         help: Flags.help({ char: 'h' }),
-        debug: Flags.boolean()
+        debug: debugFlag
     }
 
     static args = {
@@ -21,7 +21,7 @@ export default class Delete extends Command {
     
     async run() {
         const { args, flags } = await this.parse(Delete)
-        globalFlags.debug = flags.debug
+        applyGlobalFlags(flags)
         tempo.deleteAlias(args.alias_name)
     }
 }

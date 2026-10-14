@@ -37,6 +37,8 @@ test('deletes a worklog', async () => {
 
     expect(deleteWorklogMock).toHaveBeenCalledWith(123)
     expect(deletedWorklog).toStrictEqual({
+        date: '2020-02-28',
+        seconds: 900,
         description: 'Working on issue ABC-123',
         duration: '15m',
         id: '123',

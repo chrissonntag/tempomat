@@ -4,6 +4,8 @@ import { Readable, Writable } from 'stream'
 
 export type PromptOptions = {
     hidden?: boolean;
+    allowEmpty?: boolean;
+    raw?: boolean;
 }
 
 export async function prompt(
@@ -24,10 +26,10 @@ export async function prompt(
     rl.on('close', () => rejectOnClose())
     try {
         let answer = ''
-        while (!answer) {
+        for (let first = true; first || (!answer && !options.allowEmpty); first = false) {
             answer = await new Promise<string>((resolve, reject) => {
                 rejectOnClose = () => reject(Error('Input closed before a value was entered'))
-                rl.question(`${message}: `, resolve)
+                rl.question(options.raw ? message : `${message}: `, resolve)
                 muted = options.hidden === true
             })
             if (muted) output.write('\n')
@@ -46,4 +48,32 @@ export function openUrl(url: string) {
     const child = spawn(command, [url], { detached: true, stdio: 'ignore' })
     child.on('error', () => undefined)
     child.unref()
+}
+
+export function isInteractive(): boolean {
+    return Boolean(process.stdin.isTTY && process.stdout.isTTY)
+}
+
+export async function confirm(message: string, input?: Readable & { isTTY?: boolean }, output?: Writable): Promise<boolean> {
+    const answer = await prompt(`${message} [y/N]`, { allowEmpty: true }, input, output)
+    return ['y', 'yes', 'j', 'ja'].includes(answer.toLowerCase())
+}
+
+export async function choose(
+    message: string,
+    choices: string[],
+    defaultIndex?: number,
+    input?: Readable & { isTTY?: boolean },
+    output?: Writable
+): Promise<number> {
+    const target: Writable = output ?? process.stdout
+    choices.forEach((choice, index) => target.write(`  ${String(index + 1).padStart(2)}) ${choice}\n`))
+    const hint = defaultIndex !== undefined ? ` [${defaultIndex + 1}]` : ''
+    for (;;) {
+        const answer = await prompt(`${message}${hint}`, { allowEmpty: defaultIndex !== undefined }, input, output)
+        if (!answer && defaultIndex !== undefined) return defaultIndex
+        const index = parseInt(answer) - 1
+        if (/^\d+$/.test(answer) && index >= 0 && index < choices.length) return index
+        target.write(`Enter a number between 1 and ${choices.length}.\n`)
+    }
 }

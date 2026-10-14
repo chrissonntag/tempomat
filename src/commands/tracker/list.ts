@@ -1,7 +1,7 @@
 import { Command, Flags } from '@oclif/core'
 import { appName } from '../../appName'
 import tempo from '../../tempo'
-import globalFlags from '../../globalFlags'
+import { debugFlag, jsonFlag, applyGlobalFlags } from '../../commonFlags'
 import time from '../../time'
 
 export default class List extends Command {
@@ -13,12 +13,13 @@ export default class List extends Command {
 
     static flags = {
         help: Flags.help({ char: 'h' }),
-        debug: Flags.boolean()
+        debug: debugFlag,
+        json: jsonFlag
     }
 
     async run() {
         const { flags } = await this.parse(List)
-        globalFlags.debug = flags.debug
+        applyGlobalFlags(flags)
         await tempo.listTrackers(time.now())
     }
 }

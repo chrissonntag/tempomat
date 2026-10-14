@@ -17,20 +17,30 @@ export default {
         return aliases
     },
 
-    async set(aliasName: string, issueKey: string) {
+    async getWorkType(aliasName: string): Promise<string | undefined> {
+        const config = await configStore.read()
+        return config.aliasWorkTypes?.get(aliasName)
+    },
+
+    async set(aliasName: string, issueKey: string, workType?: string) {
         const config = await configStore.read()
         if (!config.aliases) {
             config.aliases = new Map<string, string>()
         }
-         
         config.aliases.set(aliasName, issueKey)
+        if (workType) {
+            config.aliasWorkTypes ??= new Map<string, string>()
+            config.aliasWorkTypes.set(aliasName, workType)
+        } else {
+            config.aliasWorkTypes?.delete(aliasName)
+        }
         await configStore.save(config)
     },
 
     async delete(aliasName: string) {
         const config = await configStore.read()
-         
         config.aliases?.delete(aliasName)
+        config.aliasWorkTypes?.delete(aliasName)
         await configStore.save(config)
     },
 

@@ -1,3 +1,5 @@
+process.env.TZ = 'Europe/Warsaw'
+
 module.exports = {
     transform: {
         '^.+\\.tsx?$': 'ts-jest'

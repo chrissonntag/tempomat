@@ -1,24 +1,28 @@
 import { Command, Flags, Args } from '@oclif/core'
 import { appName } from '../appName'
 import tempo from '../tempo'
-import globalFlags from '../globalFlags'
+import { debugFlag, jsonFlag, dryRunFlag, yesFlag, applyGlobalFlags } from '../commonFlags'
 
 export default class Delete extends Command {
-    static description = '[or d], delete the worklog with given id, this can be used also to delete a multiple worklogs'
+    static description = '[or d], delete worklogs with the given ids after showing them and asking for confirmation'
 
     static examples = [
         `${appName} delete 123456`,
         `${appName} d 123456`,
-        `${appName} delete 123456 123457`
+        `${appName} delete 123456 123457`,
+        `${appName} d 123456 -y`
     ]
-
-    static strict = false
 
     static aliases = ['d']
 
+    static strict = false
+
     static flags = {
         help: Flags.help({ char: 'h' }),
-        debug: Flags.boolean()
+        debug: debugFlag,
+        json: jsonFlag,
+        'dry-run': dryRunFlag,
+        yes: yesFlag
     }
 
     static args = {
@@ -29,8 +33,8 @@ export default class Delete extends Command {
     }
 
     async run() {
-        const { args, flags } = await this.parse(Delete)
-        globalFlags.debug = flags.debug
-        await tempo.deleteWorklogs([args.worklog_id])
+        const { argv, flags } = await this.parse(Delete)
+        applyGlobalFlags(flags)
+        await tempo.deleteWorklogs(argv as string[], flags.yes)
     }
 }

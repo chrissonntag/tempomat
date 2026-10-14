@@ -17,3 +17,7 @@ export default {
         return new Promise((resolve) => resolve(savedConfig))
     }
 }
+
+export function configFilePath(): string {
+    return '/home/test/.tempomat'
+}

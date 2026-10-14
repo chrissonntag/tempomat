@@ -425,7 +425,7 @@ describe('fails when', () => {
             durationOrInterval: '1h',
             when: 'whatever'
         })).rejects.toEqual(
-            new Error('Cannot parse "whatever" to valid date. Try to use YYYY-MM-DD format. See tempo --help for more examples.')
+            new Error('Cannot parse "whatever" to a date. Use YYYY-MM-DD, y, t-2, a weekday like fri or last-fri. See tempo --help.')
         )
     })
 

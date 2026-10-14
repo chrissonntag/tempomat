@@ -1,7 +1,7 @@
 import { Command, Flags, Args } from '@oclif/core'
 import { appName } from '../../appName'
 import tempo from '../../tempo'
-import globalFlags from '../../globalFlags'
+import { debugFlag, applyGlobalFlags } from '../../commonFlags'
 import time from '../../time'
 
 export default class Resume extends Command {
@@ -14,7 +14,7 @@ export default class Resume extends Command {
 
     static flags = {
         help: Flags.help({ char: 'h' }),
-        debug: Flags.boolean()
+        debug: debugFlag
     }
 
     static args = {
@@ -26,7 +26,7 @@ export default class Resume extends Command {
 
     async run() {
         const { args, flags } = await this.parse(Resume)
-        globalFlags.debug = flags.debug
+        applyGlobalFlags(flags)
         await tempo.resumeTracker({
             issueKeyOrAlias: args.issue_key_or_alias,
             now: time.now()

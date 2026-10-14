@@ -239,6 +239,8 @@ describe('get user worklogs', () => {
                 description: 'Working on issue ABC-123',
                 duration: '15m',
                 id: '123',
+                date: '2020-02-28',
+                seconds: 900,
                 interval: {
                     startTime: '09:30',
                     endTime: '09:45'
@@ -251,6 +253,8 @@ describe('get user worklogs', () => {
                 description: 'Working on issue ABC-124',
                 duration: '2h',
                 id: '124',
+                date: '2020-02-28',
+                seconds: 7200,
                 interval: {
                     startTime: '12:00',
                     endTime: '14:00'
@@ -277,6 +281,8 @@ describe('get user worklogs', () => {
                 description: 'Working on issue ABC-125',
                 duration: '2h3m',
                 id: '125',
+                date: '2020-02-27',
+                seconds: 7380,
                 interval: {
                     startTime: '00:00',
                     endTime: '02:03'
@@ -303,6 +309,8 @@ describe('get user worklogs', () => {
                 description: 'Working on issue ABC-125',
                 duration: '2h3m',
                 id: '125',
+                date: '2020-02-27',
+                seconds: 7380,
                 interval: {
                     startTime: '00:00',
                     endTime: '02:03'
@@ -328,6 +336,8 @@ describe('get user worklogs', () => {
             description: 'Working on issue ABC-125',
             duration: '2h3m',
             id: '125',
+            date: '2020-02-27',
+            seconds: 7380,
             interval: {
                 startTime: '00:00',
                 endTime: '02:03'
@@ -413,6 +423,8 @@ describe('get user worklogs', () => {
             description: 'Working on issue ABC-123',
             duration: '6h',
             id: '123',
+            date: '2020-02-03',
+            seconds: 21600,
             interval: {
                 startTime: '09:30',
                 endTime: '15:30'

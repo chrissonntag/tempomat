@@ -1,3 +1,5 @@
 export default {
-    debug: false
+    debug: false,
+    json: false,
+    dryRun: false
 }
