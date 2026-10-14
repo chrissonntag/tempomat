@@ -1,6 +1,6 @@
 {
   "name": "tempomat",
-  "version": "2.0.1",
+  "version": "2026.10.0",
   "description": "Tempo.io cloud CLI",
   "main": "./lib/index.js",
   "scripts": {

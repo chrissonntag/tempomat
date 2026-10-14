@@ -5,7 +5,13 @@ All notable changes to this project will be documented in this file.
 Releases use calendar versions (`YEAR.MONTH.PATCH`). Changes that need you
 to adapt are listed under **Breaking changes**.
 
-## [Unreleased]
+## [2026.10.0] - 2026-10-14
+
+First release of the fork, based on tempomat 2.0.1.
+
+### Breaking changes
+- `tempo delete` shows the worklogs and asks before deleting; scripts must
+  pass `-y`
 
 ### Added
 - Standalone releases for Linux, macOS and Windows (x64 and arm64) with
@@ -36,8 +42,7 @@ to adapt are listed under **Breaking changes**.
 - `tempo setup` checks every answer right away, reads your account id from
   Jira instead of asking for a profile URL, keeps stored values on Enter and
   asks where to keep your tokens
-- `tempo delete` shows the worklogs and asks before deleting; scripts pass
-  `-y`. Several ids are deleted, not only the first one
+- `tempo delete` deletes every id given, not only the first one
 - Failed commands exit with status 1
 - The user documentation moved from the README to `docs/`; the README keeps
   installation, updates and the license
