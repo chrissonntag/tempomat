@@ -40,6 +40,7 @@ export function macKeychain(runner: Runner = run): SecretStore {
             return result.code === 0 ? result.stdout.replace(/\n$/, '') : undefined
         },
         async set(name, value) {
+            if (!/^[\x20-\x7e]*$/.test(value)) throw Error(`The macOS Keychain only takes ${name} values made of printable ASCII characters.`)
             const quoted = `"${value.replace(/(["\\])/g, '\\$1')}"`
             const result = await runner('security', ['-i'], `add-generic-password -U -s ${SERVICE} -a ${name} -w ${quoted}\n`)
             if (result.code !== 0 || result.stderr.trim()) throw Error(`Could not store ${name} in the macOS Keychain: ${result.stderr.trim()}`)
@@ -100,8 +101,8 @@ export function windowsDpapi(runner: Runner = run, blobs: Partial<Record<SecretN
         getAll,
         async set(name, value) {
             const result = await powershell(
-                "[Console]::Out.Write([Convert]::ToBase64String([Security.Cryptography.ProtectedData]::Protect([Text.Encoding]::UTF8.GetBytes($in), $null, 'CurrentUser')))",
-                value
+                "[Console]::Out.Write([Convert]::ToBase64String([Security.Cryptography.ProtectedData]::Protect([Convert]::FromBase64String($in.Trim()), $null, 'CurrentUser')))",
+                Buffer.from(value, 'utf8').toString('base64')
             )
             if (result.code !== 0 || !result.stdout) throw Error(`Could not encrypt ${name}: ${result.stderr.trim()}`)
             blobs[name] = result.stdout.trim()

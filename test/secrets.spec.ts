@@ -38,16 +38,23 @@ describe('secret stores never put a token on the command line', () => {
     })
 
     test('Windows Data Protection passes the token on stdin and keeps only the encrypted blob', async () => {
-        const { calls, runner } = fakeRunner([{ stdout: 'BLOB==' }, { stdout: Buffer.from('secret').toString('base64') }])
+        const { calls, runner } = fakeRunner([{ stdout: 'BLOB==' }, { stdout: Buffer.from('secret ä').toString('base64') }])
         const store = windowsDpapi(runner)
 
-        await store.set('tempoToken', 'secret')
+        await store.set('tempoToken', 'secret ä')
 
         expect(calls[0].args.join(' ')).not.toContain('secret')
-        expect(calls[0].input).toBe('secret')
+        expect(calls[0].input).toBe(Buffer.from('secret ä').toString('base64'))
         expect(store.blobs).toEqual({ tempoToken: 'BLOB==' })
-        expect(await store.get('tempoToken')).toBe('secret')
+        expect(await store.get('tempoToken')).toBe('secret ä')
         expect(calls[1].input).toBe('BLOB==')
+    })
+
+    test('macOS Keychain refuses tokens it would read back as hex', async () => {
+        const { calls, runner } = fakeRunner()
+
+        await expect(macKeychain(runner).set('tempoToken', 'secret ä')).rejects.toThrow('printable ASCII')
+        expect(calls).toHaveLength(0)
     })
 
     test('Windows Data Protection decrypts all tokens in one PowerShell call', async () => {

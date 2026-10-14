@@ -6,7 +6,8 @@ const enabled = process.env.TEMPOMAT_KEYCHAIN_TEST === '1'
     test('stores, reads and deletes the tokens', async () => {
         const store = platformSecretStore({})
         expect(await store.available()).toBe(true)
-        const value = `integration-${Date.now()}-"quoted", \\ value ä`
+        const nonAscii = process.platform === 'darwin' ? '' : ' ä'
+        const value = `integration-${Date.now()}-"quoted", \\ value${nonAscii}`
 
         await store.set('tempoToken', value)
         await store.set('atlassianToken', 'second')
