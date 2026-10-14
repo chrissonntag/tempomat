@@ -53,7 +53,9 @@ export default {
         if (config.tokenStorage === 'keychain') {
             if (!cachedSecrets) {
                 const store = secretStoreFactory(config)
-                cachedSecrets = { tempoToken: await store.get('tempoToken'), atlassianToken: await store.get('atlassianToken') }
+                cachedSecrets = store.getAll
+                    ? await store.getAll(['tempoToken', 'atlassianToken'])
+                    : { tempoToken: await store.get('tempoToken'), atlassianToken: await store.get('atlassianToken') }
             }
             tempoToken = cachedSecrets.tempoToken
             atlassianToken = cachedSecrets.atlassianToken

@@ -38,7 +38,7 @@ describe('secret stores never put a token on the command line', () => {
     })
 
     test('Windows Data Protection passes the token on stdin and keeps only the encrypted blob', async () => {
-        const { calls, runner } = fakeRunner([{ stdout: 'BLOB==' }, { stdout: 'secret' }])
+        const { calls, runner } = fakeRunner([{ stdout: 'BLOB==' }, { stdout: Buffer.from('secret').toString('base64') }])
         const store = windowsDpapi(runner)
 
         await store.set('tempoToken', 'secret')
@@ -48,6 +48,30 @@ describe('secret stores never put a token on the command line', () => {
         expect(store.blobs).toEqual({ tempoToken: 'BLOB==' })
         expect(await store.get('tempoToken')).toBe('secret')
         expect(calls[1].input).toBe('BLOB==')
+    })
+
+    test('Windows Data Protection decrypts all tokens in one PowerShell call', async () => {
+        const encoded = (value: string) => Buffer.from(value).toString('base64')
+        const { calls, runner } = fakeRunner([{ stdout: `${encoded('tempo, ä')},${encoded('atl')}` }])
+        const store = windowsDpapi(runner, { tempoToken: 'BLOB1', atlassianToken: 'BLOB2' })
+
+        expect(await store.getAll(['tempoToken', 'atlassianToken'])).toEqual({ tempoToken: 'tempo, ä', atlassianToken: 'atl' })
+        expect(calls).toHaveLength(1)
+        expect(calls[0].input).toBe('BLOB1,BLOB2')
+    })
+
+    test('Windows Data Protection fails when not every token could be decrypted', async () => {
+        const { runner } = fakeRunner([{ stdout: 'dGVtcG8=' }])
+        const store = windowsDpapi(runner, { tempoToken: 'BLOB1', atlassianToken: 'BLOB2' })
+
+        await expect(store.getAll(['tempoToken', 'atlassianToken'])).rejects.toThrow('Could not decrypt tempoToken and atlassianToken')
+    })
+
+    test('Windows Data Protection does not start PowerShell when no token is stored', async () => {
+        const { calls, runner } = fakeRunner()
+
+        expect(await windowsDpapi(runner).getAll(['tempoToken'])).toEqual({})
+        expect(calls).toHaveLength(0)
     })
 
     test('Secret Service is unavailable when the lookup reports an error', async () => {

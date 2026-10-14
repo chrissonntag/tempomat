@@ -6,6 +6,7 @@ export type SecretStore = {
     name: string
     available(): Promise<boolean>
     get(name: SecretName): Promise<string | undefined>
+    getAll?(names: SecretName[]): Promise<Partial<Record<SecretName, string>>>
     set(name: SecretName, value: string): Promise<void>
     delete(name: SecretName): Promise<void>
 }
@@ -72,9 +73,20 @@ export function secretService(runner: Runner = run): SecretStore {
 
 const DPAPI_PREFIX = 'Add-Type -AssemblyName System.Security; $in = [Console]::In.ReadToEnd();'
 
-export function windowsDpapi(runner: Runner = run, blobs: Partial<Record<SecretName, string>> = {}): SecretStore & { blobs: Partial<Record<SecretName, string>> } {
+export function windowsDpapi(runner: Runner = run, blobs: Partial<Record<SecretName, string>> = {}): Required<SecretStore> & { blobs: Partial<Record<SecretName, string>> } {
     const powershell = (script: string, input: string) =>
         runner('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', `${DPAPI_PREFIX} ${script}`], input)
+    const getAll = async (names: SecretName[]): Promise<Partial<Record<SecretName, string>>> => {
+        const stored = names.filter(name => blobs[name])
+        if (stored.length === 0) return {}
+        const result = await powershell(
+            "[Console]::Out.Write((($in.Trim() -split ',') | ForEach-Object { [Convert]::ToBase64String([Security.Cryptography.ProtectedData]::Unprotect([Convert]::FromBase64String($_), $null, 'CurrentUser')) }) -join ',')",
+            stored.map(name => blobs[name]).join(',')
+        )
+        const values = result.stdout.trim().split(',')
+        if (result.code !== 0 || values.length !== stored.length) throw Error(`Could not decrypt ${stored.join(' and ')}: ${result.stderr.trim()}`)
+        return Object.fromEntries(stored.map((name, i) => [name, Buffer.from(values[i], 'base64').toString('utf8')]))
+    }
     return {
         name: 'Windows Data Protection (your user account)',
         blobs,
@@ -83,15 +95,9 @@ export function windowsDpapi(runner: Runner = run, blobs: Partial<Record<SecretN
             return result.code === 0 && result.stdout === 'ok'
         },
         async get(name) {
-            const blob = blobs[name]
-            if (!blob) return undefined
-            const result = await powershell(
-                "[Console]::Out.Write([Text.Encoding]::UTF8.GetString([Security.Cryptography.ProtectedData]::Unprotect([Convert]::FromBase64String($in), $null, 'CurrentUser')))",
-                blob
-            )
-            if (result.code !== 0) throw Error(`Could not decrypt ${name}: ${result.stderr.trim()}`)
-            return result.stdout
+            return (await getAll([name]))[name]
         },
+        getAll,
         async set(name, value) {
             const result = await powershell(
                 "[Console]::Out.Write([Convert]::ToBase64String([Security.Cryptography.ProtectedData]::Protect([Text.Encoding]::UTF8.GetBytes($in), $null, 'CurrentUser')))",
