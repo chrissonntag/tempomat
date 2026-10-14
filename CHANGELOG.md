@@ -38,6 +38,8 @@ This project adheres to Semantic Versioning.
 - `tempo delete` shows the worklogs and asks before deleting; scripts pass
   `-y`. Several ids are deleted, not only the first one
 - Failed commands exit with status 1
+- The user documentation moved from the README to `docs/`; the README keeps
+  installation, updates and the license
 
 ### Security
 - `--debug` no longer prints tokens
