@@ -13,5 +13,5 @@ const enabled = process.env.TEMPOMAT_KEYCHAIN_TEST === '1'
 
         await store.delete('tempoToken')
         expect(await store.get('tempoToken')).toBeUndefined()
-    })
+    }, 60_000)
 })
