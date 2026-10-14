@@ -1,4 +1,4 @@
-import api, { WorklogEntity, GetWorklogsResponse } from '../api/api'
+import api, { WorklogEntity, GetWorklogsResponse, WorkAttributeEntity, WorkAttributeValue } from '../api/api'
 import * as timeParser from './timeParser'
 import { ParseResult, Interval } from './timeParser'
 import time from '../time'
@@ -14,6 +14,7 @@ const START_TIME_FORMAT = 'HH:mm:ss'
 const YESTERDAY_LITERALS = ['y', 'yesterday']
 const TODAY_LITERALS = ['t', 'today']
 const TODAY_REFERENCE_REGEX = RegExp(`^(${TODAY_LITERALS.join('|')})[-+][0-9]+$`)
+const WORK_TYPE_KEY = '_WorkType_'
 
 export type AddWorklogInput = {
     issueKeyOrAlias: string
@@ -21,7 +22,8 @@ export type AddWorklogInput = {
     when?: string
     description?: string
     startTime?: string,
-    remainingEstimate?: string
+    remainingEstimate?: string,
+    workType?: string
 }
 
 export type Worklog = {
@@ -54,15 +56,22 @@ export default {
         }
         const issueKey = (await aliases.getIssueKey(input.issueKeyOrAlias) ?? input.issueKeyOrAlias).toUpperCase()
         const issueId = await api.getIssueId(issueKey)
+        const attributes = input.workType ? [await workTypeAttribute(input.workType)] : undefined
         const worklogEntity = await api.addWorklog({
             issueId: issueId,
             timeSpentSeconds: parseResult.seconds,
             startDate: format(referenceDate, DATE_FORMAT),
             startTime: startTime(parseResult, input.startTime, referenceDate),
             description: input.description,
-            remainingEstimateSeconds: remainingEstimateSeconds(referenceDate, input.remainingEstimate)
+            remainingEstimateSeconds: remainingEstimateSeconds(referenceDate, input.remainingEstimate),
+            attributes: attributes
         })
         return toWorklog(worklogEntity, { [worklogEntity.issue.id]: issueKey })
+    },
+
+    async getWorkAttributes(): Promise<WorkAttributeEntity[]> {
+        await checkTokens()
+        return api.getWorkAttributes()
     },
 
     async deleteWorklog(worklogIdInput: string): Promise<Worklog> {
@@ -187,4 +196,17 @@ function parseStartTime(startTime: string, referenceDate: Date): string {
 function generateIssueLink(issueKey: string, self: string): string {
     const url = new URL(self)
     return `https://${url.hostname}/browse/${issueKey}`
+}
+
+async function workTypeAttribute(workType: string): Promise<WorkAttributeValue> {
+    const attribute = (await api.getWorkAttributes()).find(it => it.key === WORK_TYPE_KEY)
+    if (!attribute) throw Error(`This Tempo instance has no Work Type attribute. See ${appName} work-attributes.`)
+    const names = attribute.names ?? {}
+    const wanted = workType.trim().toLowerCase()
+    const value = (attribute.values ?? []).find(it => it.toLowerCase() === wanted || names[it]?.toLowerCase() === wanted)
+    if (!value) {
+        const allowed = (attribute.values ?? []).map(it => names[it] ?? it).join(', ')
+        throw Error(`Unknown work type "${workType}". Allowed: ${allowed}`)
+    }
+    return { key: WORK_TYPE_KEY, value: value }
 }

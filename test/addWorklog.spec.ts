@@ -467,3 +467,52 @@ describe('fails when', () => {
     })
 })
 
+describe('adds a worklog with a work type', () => {
+    const addWorklogMock = jest.fn()
+        .mockReturnValue({ issue: { id: '123', self: 'https://example.atlassian.net/rest/api/2/issue/123' } })
+
+    beforeEach(() => {
+        api.addWorklog = addWorklogMock
+        api.getIssueId = jest.fn().mockResolvedValue('123')
+        api.getWorkAttributes = jest.fn().mockResolvedValue([
+            { key: '_Other_', name: 'Other', type: 'INPUT_FIELD', required: false },
+            {
+                key: '_WorkType_',
+                name: 'Work Type',
+                type: 'STATIC_LIST',
+                required: true,
+                values: ['uuid-pm', 'uuid-dev'],
+                names: { 'uuid-pm': 'Projektmanagement', 'uuid-dev': 'Entwicklung' }
+            }
+        ])
+    })
+
+    test.each(['Entwicklung', 'entwicklung', ' ENTWICKLUNG ', 'uuid-dev'])('sends the value for %p', async (workType) => {
+        await worklogs.addWorklog({ issueKeyOrAlias: 'ABC-123', durationOrInterval: '1h', workType: workType })
+
+        expect(addWorklogMock).toHaveBeenCalledWith(expect.objectContaining({
+            attributes: [{ key: '_WorkType_', value: 'uuid-dev' }]
+        }))
+    })
+
+    test('rejects an unknown work type and lists the allowed names', async () => {
+        await expect(worklogs.addWorklog({ issueKeyOrAlias: 'ABC-123', durationOrInterval: '1h', workType: '50161' }))
+            .rejects.toThrow('Unknown work type "50161". Allowed: Projektmanagement, Entwicklung')
+
+        expect(addWorklogMock).not.toHaveBeenCalled()
+    })
+
+    test('rejects a work type when the instance has no Work Type attribute', async () => {
+        api.getWorkAttributes = jest.fn().mockResolvedValue([])
+
+        await expect(worklogs.addWorklog({ issueKeyOrAlias: 'ABC-123', durationOrInterval: '1h', workType: 'Entwicklung' }))
+            .rejects.toThrow('This Tempo instance has no Work Type attribute.')
+    })
+
+    test('sends no attributes without a work type', async () => {
+        await worklogs.addWorklog({ issueKeyOrAlias: 'ABC-123', durationOrInterval: '1h' })
+
+        expect(addWorklogMock.mock.calls[0][0].attributes).toBeUndefined()
+        expect(api.getWorkAttributes).not.toHaveBeenCalled()
+    })
+})

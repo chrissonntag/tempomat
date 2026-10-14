@@ -144,6 +144,31 @@ describe('tracker', () => {
         })
     })
 
+    test('can be stopped with a work type', async () => {
+        await clearStore()
+        authenticate()
+        const apiMock = mockWorklogResponse()
+        api.getWorkAttributes = jest.fn().mockResolvedValue([
+            { key: '_WorkType_', name: 'Work Type', type: 'STATIC_LIST', required: true, values: ['uuid-dev'], names: { 'uuid-dev': 'Entwicklung' } }
+        ])
+
+        await tempo.startTracker({
+            issueKeyOrAlias: 'ABC-123',
+            now: baseDate
+        })
+        await tempo.stopTracker({
+            issueKeyOrAlias: 'ABC-123',
+            workType: 'Entwicklung',
+            now: add(baseDate, { minutes: 10 })
+        })
+
+        expect(apiMock).toBeCalledWith(expect.objectContaining({
+            issueId: '123',
+            attributes: [{ key: '_WorkType_', value: 'uuid-dev' }]
+        }))
+        expect(await getTracker('ABC-123')).toBeUndefined()
+    })
+
     test('can be started after being stopped', async () => {
         await clearStore()
         authenticate()

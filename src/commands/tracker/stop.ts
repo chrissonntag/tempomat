@@ -19,7 +19,8 @@ export default class Stop extends Command {
         help: Flags.help({ char: 'h' }),
         debug: Flags.boolean(),
         description: Flags.string({ char: 'd', description: 'description for worklog' }),
-        'remaining-estimate': Flags.string({ char: 'r', description: 'remaining estimate' })
+        'remaining-estimate': Flags.string({ char: 'r', description: 'remaining estimate' }),
+        'work-type': Flags.string({ char: 'w', description: `work type name, e.g. Entwicklung (see ${appName} work-attributes)` })
     }
 
     static args = {
@@ -36,6 +37,7 @@ export default class Stop extends Command {
             issueKeyOrAlias: args.issue_key_or_alias,
             description: flags.description,
             remainingEstimate: flags['remaining-estimate'],
+            workType: flags['work-type'],
             now: time.now()
         })
     }

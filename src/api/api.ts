@@ -11,7 +11,22 @@ export type AddWorklogRequest = {
     startDate: string;
     startTime: string;
     description?: string;
-    remainingEstimateSeconds?: number
+    remainingEstimateSeconds?: number;
+    attributes?: WorkAttributeValue[]
+}
+
+export type WorkAttributeValue = {
+    key: string;
+    value: string;
+}
+
+export type WorkAttributeEntity = {
+    key: string;
+    name: string;
+    type: string;
+    required: boolean;
+    values?: string[];
+    names?: Record<string, string>;
 }
 
 export type GetWorklogsRequest = {
@@ -116,6 +131,14 @@ export default {
         })
     },
 
+    async getWorkAttributes(): Promise<WorkAttributeEntity[]> {
+        return execute(async () => {
+            const response = await tempoAxios.get('/work-attributes', { params: { limit: 1000 } })
+            debugLog(response)
+            return fetchPaginatedResults<WorkAttributeEntity>(response.data.results, response)
+        })
+    },
+
     async getIssueId(issueKey: string): Promise<string> {
         const path = `/issue/${encodeURIComponent(validIssueKey(issueKey))}`
         return execute(async () => {
@@ -157,9 +180,11 @@ function validIssueId(issueId: string): string {
     return String(issueId)
 }
 
+const TEMPO_ORIGINS = ['https://api.tempo.io', 'https://api.eu.tempo.io', 'https://api.us.tempo.io']
+
 function validTempoUrl(url: string): string {
     const parsed = new URL(url, tempoBaseUrl)
-    if (parsed.origin !== new URL(tempoBaseUrl).origin) throw Error(`Refusing to follow pagination link to ${parsed.origin}`)
+    if (!TEMPO_ORIGINS.includes(parsed.origin)) throw Error(`Refusing to follow pagination link to ${parsed.origin}`)
     return parsed.href
 }
 

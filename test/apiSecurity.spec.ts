@@ -112,6 +112,15 @@ describe('worklog pagination', () => {
         expect(requests[1].url).toBe('https://api.tempo.io/4/worklogs/user/fakeAccountId?offset=1')
     })
 
+    test('follows next links on the regional Tempo hosts', async () => {
+        respondWith(
+            { results: ['a'], metadata: { next: 'https://api.eu.tempo.io/4/work-attributes?offset=1' } },
+            { results: ['b'], metadata: {} })
+
+        expect(await api.getWorkAttributes()).toEqual(['a', 'b'])
+        expect(requests[1].url).toBe('https://api.eu.tempo.io/4/work-attributes?offset=1')
+    })
+
     test('does not send the Tempo token to a foreign next link', async () => {
         respondWith({ results: ['a'], metadata: { next: 'https://attacker.example/steal' } })
 

@@ -21,7 +21,8 @@ export default class Log extends Command {
         `${appName} log abc-123 1h15m yesterday`,
         `${appName} log abc-123 1h15m -d "worklog description"`,
         `${appName} log abc-123 1h15m --start 10:30`,
-        `${appName} log abc-123 1h15m -s 9`
+        `${appName} log abc-123 1h15m -s 9`,
+        `${appName} log abc-123 1h15m -w Entwicklung`
     ]
 
     static aliases = ['l']
@@ -31,7 +32,8 @@ export default class Log extends Command {
         debug: Flags.boolean(),
         description: Flags.string({ char: 'd', description: 'description for worklog' }),
         start: Flags.string({ char: 's', description: 'start time (HH:mm format), used when the input is a duration' }),
-        'remaining-estimate': Flags.string({ char: 'r', description: 'remaining estimate' })
+        'remaining-estimate': Flags.string({ char: 'r', description: 'remaining estimate' }),
+        'work-type': Flags.string({ char: 'w', description: `work type name, e.g. Entwicklung (see ${appName} work-attributes)` })
     }
 
     static args = {
@@ -60,7 +62,8 @@ export default class Log extends Command {
             when: args.when,
             description: flags.description,
             startTime: flags.start,
-            remainingEstimate: flags['remaining-estimate']
+            remainingEstimate: flags['remaining-estimate'],
+            workType: flags['work-type']
         })
     }
 }

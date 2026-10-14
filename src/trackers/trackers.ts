@@ -23,6 +23,7 @@ export type StopTrackerInput = {
     issueKeyOrAlias: string,
     description?: string,
     remainingEstimate?: string,
+    workType?: string,
     now: Date
 }
 

@@ -94,6 +94,19 @@ export default {
         })
     },
 
+    async listWorkAttributes() {
+        await execute(async () => {
+            const attributes = await worklogs.getWorkAttributes()
+            for (const attribute of attributes) {
+                const required = attribute.required ? ', required' : ''
+                console.log(chalk.bold(`${attribute.name} (${attribute.key}, ${attribute.type}${required})`))
+                for (const value of attribute.values ?? []) {
+                    console.log(`  ${attribute.names?.[value] ?? value}`)
+                }
+            }
+        })
+    },
+
     async startTracker(input: StartTrackerInput) {
         await execute(async () => {
             let tracker = await trackers.findTracker(input.issueKeyOrAlias)
@@ -143,7 +156,7 @@ export default {
                 return
             }
 
-            const intervalsWithInputs = createWorklogInputs(tracker, input.remainingEstimate)
+            const intervalsWithInputs = createWorklogInputs(tracker, input.remainingEstimate, input.workType)
             if (intervalsWithInputs.length === 0) {
                 console.log('There are no intervals with minimal length of 0 minutes.')
                 await trackers.deleteTracker({ issueKeyOrAlias: tracker.issueKey })
@@ -219,7 +232,7 @@ async function deleteWorklog(worklogIdInput: string): Promise<void> {
     )
 }
 
-function createWorklogInputs(tracker: Tracker, remainingEstimate?: string): [Interval, AddWorklogInput][] {
+function createWorklogInputs(tracker: Tracker, remainingEstimate?: string, workType?: string): [Interval, AddWorklogInput][] {
     return tracker.intervals.map(interval => {
         return [
             interval,
@@ -229,7 +242,8 @@ function createWorklogInputs(tracker: Tracker, remainingEstimate?: string): [Int
                 when: fnsLightFormat(interval.start, 'yyyy-MM-dd'),
                 startTime: fnsLightFormat(interval.start, 'HH:mm'),
                 durationOrInterval: `${differenceInMinutes(interval.end, interval.start)}m`,
-                remainingEstimate: remainingEstimate
+                remainingEstimate: remainingEstimate,
+                workType: workType
             }
         ]
     })
