@@ -11,7 +11,9 @@ bundled Claude Code skill lets you do the same in plain language with
 `/tempo`.
 
 This is a fork of
-[szymonkozak/tempomat](https://github.com/szymonkozak/tempomat).
+[szymonkozak/tempomat](https://github.com/szymonkozak/tempomat), based on its
+version 2.0.1. The fork has its own calendar versions such as `2026.10.0`,
+which are unrelated to the upstream version numbers.
 
 ## Table of contents
 

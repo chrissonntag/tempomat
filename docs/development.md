@@ -4,6 +4,7 @@
 
 * [Working on tempomat](#working-on-tempomat)
 * [Command reference](#command-reference)
+* [Versions](#versions)
 * [Releasing](#releasing)
 
 ## Working on tempomat
@@ -27,12 +28,23 @@ changing a command, regenerate it:
 npm run docs
 ```
 
+## Versions
+
+Releases use calendar versions, `YEAR.MONTH.PATCH`: the first release in
+October 2026 is `2026.10.0`, the next one in that month `2026.10.1`, the
+first one in January 2027 `2027.1.0`. Months have no leading zero, so every
+version is also a valid semantic version and sorts correctly.
+
+A version number does not say whether a release breaks something. The
+changelog lists such changes under **Breaking changes** instead.
+
 ## Releasing
 
-1. Add a section for the new version to [CHANGELOG.md](../CHANGELOG.md),
-   e.g. `## [2.1.0] - 2026-10-14`. It becomes the release notes.
-2. Bump the version and tag it: `npm version minor` (or `patch`, `major`).
-   This also regenerates the command reference.
+1. Rename the `## [Unreleased]` section of [CHANGELOG.md](../CHANGELOG.md)
+   to the new version, e.g. `## [2026.11.0] - 2026-11-03`. It becomes the
+   release notes.
+2. Bump the version and tag it: `npm version 2026.11.0`. This also
+   regenerates the command reference.
 3. Push the commit and the tag: `git push --follow-tags`.
 
 The tag starts the release workflow. It runs the tests, builds standalone
