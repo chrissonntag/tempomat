@@ -69,7 +69,6 @@
     "chalk": "^3.0.0",
     "cli-table3": "^0.5.1",
     "cli-truncate": "^2.1.0",
-    "cli-ux": "^6.0.9",
     "date-fns": "^2.30.0",
     "lodash": "^4.17.21"
   },

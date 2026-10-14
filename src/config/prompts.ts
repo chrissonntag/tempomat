@@ -1,4 +1,4 @@
-import cli from 'cli-ux'
+import { openUrl, prompt } from '../terminal'
 import { trimIndent } from '../trimIndent'
 import { Credentials } from './authenticator'
 
@@ -26,7 +26,7 @@ export default {
 }
 
 async function promptAtlassianUrl(): Promise<string> {
-    const input = await cli.prompt(trimIndent(`
+    const input = await prompt(trimIndent(`
     Step 1/5:
     Enter your Atlassian URL.
     For example: yourcompany.atlassian.net
@@ -41,7 +41,7 @@ async function promptAtlassianUrl(): Promise<string> {
 }
 
 async function promptAccountId(hostname: string): Promise<string> {
-    const input = await cli.prompt(trimIndent(`
+    const input = await prompt(trimIndent(`
     Step 2/5:
     Enter your Jira account URL. (This is needed to extract your account ID)
     1. Click on your avatar on the Jira navigation header
@@ -60,7 +60,7 @@ async function promptAccountId(hostname: string): Promise<string> {
 }
 
 async function promptAtlassianUserEmail(): Promise<string> {
-    const input = await cli.prompt(trimIndent(`
+    const input = await prompt(trimIndent(`
     Step 3/5:
     Enter your Jira (Atlassian) user email.
     In next steps you will be prompted to generate Atlassian and Tempo tokens.
@@ -70,26 +70,26 @@ async function promptAtlassianUserEmail(): Promise<string> {
 
 async function promptAtlassianToken(): Promise<string> {
     const atlassianTokenUrl = 'https://id.atlassian.com/manage-profile/security/api-tokens'
-    cli.open(atlassianTokenUrl)
-    const input = await cli.prompt(trimIndent(`
+    openUrl(atlassianTokenUrl)
+    const input = await prompt(trimIndent(`
     Step 4/5:
     Enter your Atlassian API token. It's needed to fetch workflow id based on issue key.
     You can generate it here: 
     ${atlassianTokenUrl} 
     (this page should open automatically in your browser)
-    `), { type: 'hide' })
+    `), { hidden: true })
     return input
 }
 
 async function promptTempoToken(hostname: string): Promise<string> {
     const tempoConfigurationUrl = `https://${hostname}/plugins/servlet/ac/io.tempo.jira/tempo-app#!/configuration/api-integration`
-    cli.open(tempoConfigurationUrl)
-    const input = await cli.prompt(trimIndent(`
+    openUrl(tempoConfigurationUrl)
+    const input = await prompt(trimIndent(`
     Step 5/5:
     That's almost everything! Enter your tempo token. You can generate it here: 
     ${tempoConfigurationUrl} 
     (this page should open automatically in your browser)
-    `), { type: 'hide' })
+    `), { hidden: true })
     return input
 }
 

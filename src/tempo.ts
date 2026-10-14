@@ -5,7 +5,7 @@ import * as worklogsTable from './worklogs/worklogsTable'
 import chalk from 'chalk'
 import { appName } from './appName'
 import { trimIndent } from './trimIndent'
-import cli from 'cli-ux'
+import { ux } from '@oclif/core'
 import aliases from './config/aliases'
 import trackers, {
     StartTrackerInput,
@@ -49,9 +49,9 @@ export default {
 
     async addWorklog(input: AddWorklogInput): Promise<boolean> {
         return execute(async () => {
-            cli.action.start('Logging time')
+            ux.action.start('Logging time')
             const worklog = await worklogs.addWorklog(input)
-            cli.action.stop('Done.')
+            ux.action.stop('Done.')
             console.log(chalk.greenBright(`Successfully logged ${worklog.duration} to ${worklog.issueKey}, type ${chalk.bold(`tempo d ${worklog.id}`)} to undo.`))
         })
     },
@@ -66,9 +66,9 @@ export default {
 
     async listUserWorklogs(when?: string, verbose = false) {
         execute(async () => {
-            cli.action.start('Loading worklogs')
+            ux.action.start('Loading worklogs')
             const userWorklogs = await worklogs.getUserWorklogs(when)
-            cli.action.stop('Done.')
+            ux.action.stop('Done.')
             const table = await worklogsTable.render(userWorklogs, verbose)
             console.log(table.toString())
         })
@@ -205,14 +205,14 @@ async function execute(action: () => Promise<void>): Promise<boolean> {
 }
 
 function showError(e: Error) {
-    cli.action.stop('Error.')
+    ux.action.stop('Error.')
     console.log(chalk.redBright(e.message))
 }
 
 async function deleteWorklog(worklogIdInput: string): Promise<void> {
-    cli.action.start(`Deleting worklog ${worklogIdInput}`)
+    ux.action.start(`Deleting worklog ${worklogIdInput}`)
     const worklog = await worklogs.deleteWorklog(worklogIdInput)
-    cli.action.stop('Done.')
+    ux.action.stop('Done.')
     console.log(
         chalk.greenBright(`Successfully deleted worklog ${chalk.yellow(worklog.id)}.`),
         `Deleted worklog details: ${worklog.issueKey}, ${worklog.interval?.startTime}-${worklog.interval?.endTime} (${worklog.duration})`
