@@ -4,6 +4,49 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to Semantic Versioning.
 
+## [Unreleased]
+
+### Added
+- Standalone releases for Linux, macOS and Windows (x64 and arm64) with
+  bundled Node.js, install scripts and `SHA256SUMS`
+- `tempo update` installs the latest release after verifying its checksum;
+  a daily notice tells you when one is out
+- Claude Code skill: `tempo skill:install`, `skill:update`,
+  `skill:uninstall` and `tempo skill`; setup offers to install it
+- Week, month and date range views: `tempo ls week [last|-N|N|N/YYYY]`,
+  `tempo ls month [last|-N|YYYY-MM]`, `tempo ls --from --to`, with logged
+  versus required time per day and a per-issue summary
+- Weekday dates such as `fri`, `mo` and `last-fri` wherever a day is given
+- `tempo edit` changes a worklog in place, `tempo copy` copies one to another
+  day, `tempo undo` reverts the last log, copy, import, edit or delete
+- `tempo import` logs many worklogs from a file or stdin after checking all
+  of them and showing a preview
+- Work types: `-w` on `log` and `stop`, a default work type
+  (`tempo config:set work-type`), a work type per alias and
+  `tempo work-attributes`
+- `tempo config` shows settings; `config:set token-storage keychain` keeps
+  tokens in the macOS Keychain, the Secret Service keyring or Windows Data
+  Protection
+- `--dry-run` on every command that changes worklogs, `--json` on listings
+- `tempo l 1h` without an issue offers your recent issues
+- Day view shows unlogged gaps, overlapping worklogs and the work type
+
+### Changed
+- `tempo setup` checks every answer right away, reads your account id from
+  Jira instead of asking for a profile URL, keeps stored values on Enter and
+  asks where to keep your tokens
+- `tempo delete` shows the worklogs and asks before deleting; scripts pass
+  `-y`. Several ids are deleted, not only the first one
+- Failed commands exit with status 1
+
+### Security
+- `--debug` no longer prints tokens
+- Issue keys and ids are validated before they reach the Jira API
+- Pagination links are only followed to Tempo hosts
+- Dependencies with known vulnerabilities were updated or replaced
+- The config file is written atomically with mode 600 and is never replaced
+  when it cannot be read
+
 ## [2.0.1] - 2025-12-04
 
 ### Changed
