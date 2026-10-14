@@ -61,17 +61,16 @@
   ],
   "dependencies": {
     "@oclif/core": "^4.2.10",
-    "@oclif/plugin-autocomplete": "^1.4.3",
+    "@oclif/plugin-autocomplete": "^4.0.4",
     "@oclif/plugin-help": "^6.2.27",
     "@oclif/plugin-warn-if-update-available": "^3.1.38",
     "@types/lodash": "^4.17.16",
-    "axios": "^1.8.4",
+    "axios": "^1.20.0",
     "chalk": "^3.0.0",
     "cli-table3": "^0.5.1",
     "cli-truncate": "^2.1.0",
     "cli-ux": "^6.0.9",
     "date-fns": "^2.30.0",
-    "globby": "^14.1.0",
     "lodash": "^4.17.21"
   },
   "devDependencies": {
