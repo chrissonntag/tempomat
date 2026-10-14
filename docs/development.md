@@ -17,7 +17,10 @@ npm run lint
 bin/run --help
 ```
 
-Pull requests run the tests on Linux, macOS and Windows.
+Every push and pull request runs the tests on Linux, macOS and Windows.
+Standalone archives are only built for a release. To check the packaging
+before tagging, start the CI workflow by hand under Actions › CI › Run
+workflow; it then also builds the archives.
 
 ## Command reference
 
