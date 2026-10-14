@@ -57,7 +57,7 @@ EXAMPLES
   $ tempo alias:delete lunch
 ```
 
-_See code: [src/commands/alias/delete.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.0/src/commands/alias/delete.ts)_
+_See code: [src/commands/alias/delete.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.1/src/commands/alias/delete.ts)_
 
 ## `tempo alias:list`
 
@@ -79,7 +79,7 @@ EXAMPLES
   $ tempo alias:list
 ```
 
-_See code: [src/commands/alias/list.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.0/src/commands/alias/list.ts)_
+_See code: [src/commands/alias/list.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.1/src/commands/alias/list.ts)_
 
 ## `tempo alias:set ALIAS ISSUE_KEY`
 
@@ -107,7 +107,7 @@ EXAMPLES
   $ tempo alias:set standup abc-124 -w Projektmanagement
 ```
 
-_See code: [src/commands/alias/set.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.0/src/commands/alias/set.ts)_
+_See code: [src/commands/alias/set.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.1/src/commands/alias/set.ts)_
 
 ## `tempo autocomplete [SHELL]`
 
@@ -164,7 +164,7 @@ EXAMPLES
   $ tempo config:unset work-type
 ```
 
-_See code: [src/commands/config/index.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.0/src/commands/config/index.ts)_
+_See code: [src/commands/config/index.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.1/src/commands/config/index.ts)_
 
 ## `tempo config:set KEY VALUE`
 
@@ -192,7 +192,7 @@ EXAMPLES
   $ tempo config:set token-storage keychain
 ```
 
-_See code: [src/commands/config/set.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.0/src/commands/config/set.ts)_
+_See code: [src/commands/config/set.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.1/src/commands/config/set.ts)_
 
 ## `tempo config:unset KEY`
 
@@ -216,7 +216,7 @@ EXAMPLES
   $ tempo config:unset work-type
 ```
 
-_See code: [src/commands/config/unset.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.0/src/commands/config/unset.ts)_
+_See code: [src/commands/config/unset.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.1/src/commands/config/unset.ts)_
 
 ## `tempo copy WORKLOG_ID [WHEN]`
 
@@ -251,7 +251,7 @@ EXAMPLES
   $ tempo cp 123456 2026-10-13 -s 9:30
 ```
 
-_See code: [src/commands/copy.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.0/src/commands/copy.ts)_
+_See code: [src/commands/copy.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.1/src/commands/copy.ts)_
 
 ## `tempo delete WORKLOG_ID`
 
@@ -287,7 +287,7 @@ EXAMPLES
   $ tempo d 123456 -y
 ```
 
-_See code: [src/commands/delete.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.0/src/commands/delete.ts)_
+_See code: [src/commands/delete.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.1/src/commands/delete.ts)_
 
 ## `tempo edit WORKLOG_ID`
 
@@ -337,7 +337,7 @@ EXAMPLES
   $ tempo edit 123456 -t 3h --dry-run
 ```
 
-_See code: [src/commands/edit.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.0/src/commands/edit.ts)_
+_See code: [src/commands/edit.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.1/src/commands/edit.ts)_
 
 ## `tempo help [COMMAND]`
 
@@ -392,7 +392,7 @@ EXAMPLES
   cat week.txt | tempo import - -y
 ```
 
-_See code: [src/commands/import.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.0/src/commands/import.ts)_
+_See code: [src/commands/import.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.1/src/commands/import.ts)_
 
 ## `tempo list [WHEN] [WHICH]`
 
@@ -454,7 +454,7 @@ EXAMPLES
   $ tempo ls --from 2026-10-01 --to 2026-10-14
 ```
 
-_See code: [src/commands/list.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.0/src/commands/list.ts)_
+_See code: [src/commands/list.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.1/src/commands/list.ts)_
 
 ## `tempo log ISSUE_KEY_OR_ALIAS [DURATION_OR_INTERVAL] [WHEN]`
 
@@ -528,7 +528,7 @@ EXAMPLES
   $ tempo log 1h
 ```
 
-_See code: [src/commands/log.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.0/src/commands/log.ts)_
+_See code: [src/commands/log.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.1/src/commands/log.ts)_
 
 ## `tempo setup`
 
@@ -545,7 +545,7 @@ EXAMPLES
   $ tempo setup
 ```
 
-_See code: [src/commands/setup.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.0/src/commands/setup.ts)_
+_See code: [src/commands/setup.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.1/src/commands/setup.ts)_
 
 ## `tempo skill`
 
@@ -567,7 +567,7 @@ EXAMPLES
   $ tempo skill
 ```
 
-_See code: [src/commands/skill/index.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.0/src/commands/skill/index.ts)_
+_See code: [src/commands/skill/index.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.1/src/commands/skill/index.ts)_
 
 ## `tempo skill:install`
 
@@ -598,7 +598,7 @@ EXAMPLES
   $ tempo skill:install --dir ~/agents/skills
 ```
 
-_See code: [src/commands/skill/install.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.0/src/commands/skill/install.ts)_
+_See code: [src/commands/skill/install.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.1/src/commands/skill/install.ts)_
 
 ## `tempo skill:uninstall`
 
@@ -622,7 +622,7 @@ EXAMPLES
   $ tempo skill:uninstall --dir ~/.claude/skills/tempo
 ```
 
-_See code: [src/commands/skill/uninstall.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.0/src/commands/skill/uninstall.ts)_
+_See code: [src/commands/skill/uninstall.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.1/src/commands/skill/uninstall.ts)_
 
 ## `tempo skill:update`
 
@@ -643,7 +643,7 @@ EXAMPLES
   $ tempo skill:update
 ```
 
-_See code: [src/commands/skill/update.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.0/src/commands/skill/update.ts)_
+_See code: [src/commands/skill/update.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.1/src/commands/skill/update.ts)_
 
 ## `tempo tracker:delete ISSUE_KEY_OR_ALIAS`
 
@@ -667,7 +667,7 @@ EXAMPLES
   $ tempo tracker:delete abc-123
 ```
 
-_See code: [src/commands/tracker/delete.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.0/src/commands/tracker/delete.ts)_
+_See code: [src/commands/tracker/delete.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.1/src/commands/tracker/delete.ts)_
 
 ## `tempo tracker:list`
 
@@ -689,7 +689,7 @@ EXAMPLES
   $ tempo tracker:list
 ```
 
-_See code: [src/commands/tracker/list.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.0/src/commands/tracker/list.ts)_
+_See code: [src/commands/tracker/list.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.1/src/commands/tracker/list.ts)_
 
 ## `tempo tracker:pause ISSUE_KEY_OR_ALIAS`
 
@@ -718,7 +718,7 @@ EXAMPLES
   $ tempo pause abc-123
 ```
 
-_See code: [src/commands/tracker/pause.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.0/src/commands/tracker/pause.ts)_
+_See code: [src/commands/tracker/pause.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.1/src/commands/tracker/pause.ts)_
 
 ## `tempo tracker:resume ISSUE_KEY_OR_ALIAS`
 
@@ -744,7 +744,7 @@ EXAMPLES
   $ tempo resume abc-123
 ```
 
-_See code: [src/commands/tracker/resume.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.0/src/commands/tracker/resume.ts)_
+_See code: [src/commands/tracker/resume.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.1/src/commands/tracker/resume.ts)_
 
 ## `tempo tracker:start ISSUE_KEY_OR_ALIAS`
 
@@ -777,7 +777,7 @@ EXAMPLES
   $ tempo tracker:start abc-123 -d "worklog description"
 ```
 
-_See code: [src/commands/tracker/start.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.0/src/commands/tracker/start.ts)_
+_See code: [src/commands/tracker/start.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.1/src/commands/tracker/start.ts)_
 
 ## `tempo tracker:stop ISSUE_KEY_OR_ALIAS`
 
@@ -812,7 +812,7 @@ EXAMPLES
   $ tempo tracker:stop abc-123 -d "worklog description"
 ```
 
-_See code: [src/commands/tracker/stop.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.0/src/commands/tracker/stop.ts)_
+_See code: [src/commands/tracker/stop.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.1/src/commands/tracker/stop.ts)_
 
 ## `tempo undo`
 
@@ -840,7 +840,7 @@ EXAMPLES
   $ tempo undo -y
 ```
 
-_See code: [src/commands/undo.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.0/src/commands/undo.ts)_
+_See code: [src/commands/undo.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.1/src/commands/undo.ts)_
 
 ## `tempo update`
 
@@ -868,7 +868,7 @@ EXAMPLES
   $ tempo update -y
 ```
 
-_See code: [src/commands/update.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.0/src/commands/update.ts)_
+_See code: [src/commands/update.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.1/src/commands/update.ts)_
 
 ## `tempo work-attributes`
 
@@ -895,5 +895,5 @@ EXAMPLES
   $ tempo wa
 ```
 
-_See code: [src/commands/work-attributes.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.0/src/commands/work-attributes.ts)_
+_See code: [src/commands/work-attributes.ts](https://github.com/chrissonntag/tempomat/blob/v2026.10.1/src/commands/work-attributes.ts)_
 <!-- commandsstop -->

@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 Releases use calendar versions (`YEAR.MONTH.PATCH`). Changes that need you
 to adapt are listed under **Breaking changes**.
 
+## [2026.10.1] - 2026-10-14
+
+### Changed
+- Windows: with tokens in the keychain, every command starts PowerShell
+  once instead of twice to decrypt them, which makes it noticeably faster
+
+### Fixed
+- Windows: tokens with non-ASCII characters are no longer garbled when they
+  are encrypted
+- macOS: tokens with non-ASCII characters are refused with a clear message
+  instead of being read back as hex
+
 ## [2026.10.0] - 2026-10-14
 
 First release of the fork, based on tempomat 2.0.1.
