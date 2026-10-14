@@ -4,6 +4,8 @@ import { macKeychain, RunResult, secretService, windowsDpapi, SecretName } from 
 
 jest.mock('../src/config/configStore', () => jest.requireActual('./mocks/configStore'))
 
+const service = process.env.TEMPOMAT_KEYCHAIN_SERVICE || 'tempomat'
+
 type Call = { command: string, args: string[], input?: string }
 
 function fakeRunner(results: Partial<RunResult>[] = []) {
@@ -22,7 +24,7 @@ describe('secret stores never put a token on the command line', () => {
         await macKeychain(runner).set('tempoToken', 'se"cret')
 
         expect(calls[0].args).toEqual(['-i'])
-        expect(calls[0].input).toBe('add-generic-password -U -s tempomat -a tempoToken -w "se\\"cret"\n')
+        expect(calls[0].input).toBe(`add-generic-password -U -s ${service} -a tempoToken -w "se\\"cret"\n`)
     })
 
     test('Secret Service passes the token on stdin', async () => {
@@ -31,7 +33,7 @@ describe('secret stores never put a token on the command line', () => {
         await secretService(runner).set('atlassianToken', 'secret')
 
         expect(calls[0].args.join(' ')).not.toContain('secret ')
-        expect(calls[0].args).toEqual(['store', '--label=tempomat atlassianToken', 'service', 'tempomat', 'account', 'atlassianToken'])
+        expect(calls[0].args).toEqual(['store', '--label=tempomat atlassianToken', 'service', service, 'account', 'atlassianToken'])
         expect(calls[0].input).toBe('secret')
     })
 

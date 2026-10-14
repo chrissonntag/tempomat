@@ -14,8 +14,6 @@ concurrency:
 jobs:
   ci:
     uses: ./.github/workflows/ci.yml
-    with:
-      pack: false
 
   build:
     name: Build standalone archives
